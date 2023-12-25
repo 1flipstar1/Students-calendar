@@ -142,36 +142,40 @@ class MyWidget(QMainWindow):
         self.markwin.show()
 
     def delete_event(self):  # Функция для удаления событий
-        with open('events.txt', encoding='utf-8') as f:  # Считываем строки из файла
-            lines = f.readlines()
-            f.close()
-        event = self.events[self.events_list_wg.currentRow()]
-        time_to_delete = event.split(' - ')[0].split(':')
-        if time_to_delete[0][0] == '0':  # Удаление лишнего из time_to_delete
-            time_to_delete[0] = time_to_delete[0][1:]
-        if time_to_delete[1][0] == '0':
-            time_to_delete[1] = time_to_delete[1][1:]
-        time_to_delete = ', '.join(time_to_delete)
-        name_to_delete = event.split(' - ')[1]
-        date_to_delete = str(self.calendar.selectedDate()).split('(')[1].replace(')', '')
-        event_to_delete = f' {"-".join([date_to_delete, time_to_delete, name_to_delete])}\n'
-        pattern = re.compile(re.escape(event_to_delete))  # Удаляем событие
-        with open('events.txt', mode='w', encoding='utf-8') as f:  # Проверяем удаление
-            for line in lines:
-                result = pattern.search(line)
-                if result is None:
-                    f.write(line)
-        f.close()  # Закрываем файл
-        self.show_events()
-        event_to_delete = f' {"-".join([date_to_delete, time_to_delete, name_to_delete])}'  # event_to_delete без \n
-        pattern = re.compile(re.escape(event_to_delete))  # Удаляем если событие было добаленно последним
-        with open('events.txt', mode='w', encoding='utf-8') as f:
-            for line in lines:
-                result = pattern.search(line)
-                if result is None:
-                    f.write(line)
-        f.close()  # Закрытие файла
-        self.show_events()  # Обновление QListWidget
+        quest = QMessageBox.question(self, 'Подтверждение удаления',
+                                             'Вы действительно хотите удалить это событие?',
+                                             QMessageBox.Yes | QMessageBox.No)
+        if quest == QMessageBox.Yes:
+            with open('events.txt', encoding='utf-8') as f:  # Считываем строки из файла
+                lines = f.readlines()
+                f.close()
+            event = self.events[self.events_list_wg.currentRow()]
+            time_to_delete = event.split(' - ')[0].split(':')
+            if time_to_delete[0][0] == '0':  # Удаление лишнего из time_to_delete
+                time_to_delete[0] = time_to_delete[0][1:]
+            if time_to_delete[1][0] == '0':
+                time_to_delete[1] = time_to_delete[1][1:]
+            time_to_delete = ', '.join(time_to_delete)
+            name_to_delete = event.split(' - ')[1]
+            date_to_delete = str(self.calendar.selectedDate()).split('(')[1].replace(')', '')
+            event_to_delete = f' {"-".join([date_to_delete, time_to_delete, name_to_delete])}\n'
+            pattern = re.compile(re.escape(event_to_delete))  # Удаляем событие
+            with open('events.txt', mode='w', encoding='utf-8') as f:  # Проверяем удаление
+                for line in lines:
+                    result = pattern.search(line)
+                    if result is None:
+                        f.write(line)
+            f.close()  # Закрываем файл
+            self.show_events()
+            event_to_delete = f' {"-".join([date_to_delete, time_to_delete, name_to_delete])}'  # event_to_delete без \n
+            pattern = re.compile(re.escape(event_to_delete))  # Удаляем если событие было добаленно последним
+            with open('events.txt', mode='w', encoding='utf-8') as f:
+                for line in lines:
+                    result = pattern.search(line)
+                    if result is None:
+                        f.write(line)
+            f.close()  # Закрытие файла
+            self.show_events()  # Обновление QListWidget
 
 
 def except_hook(cls, exception, traceback):
@@ -179,8 +183,11 @@ def except_hook(cls, exception, traceback):
 
 
 if __name__ == '__main__':  # Открытие программы
-    app = QApplication(sys.argv)
-    ex = MyWidget()
-    ex.show()
-    sys.excepthook = except_hook
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        ex = MyWidget()
+        ex.show()
+        sys.excepthook = except_hook
+        sys.exit(app.exec_())
+    except AttributeError:
+        None
