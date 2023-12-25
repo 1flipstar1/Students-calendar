@@ -16,8 +16,10 @@ class MarksWindow(QMainWindow):  # Класс окна статистики оц
         self.initUI()
 
     def initUI(self):  # Создание дизайна окна
-        self.setGeometry(300, 300, 500, 400)
+        self.setGeometry(500, 500, 500, 400)
         self.setWindowTitle('Статистика оценок')
+        self.setFixedWidth(500)  # Установка фиксированного размера окна
+        self.setFixedHeight(400)
         add_mark_button = QPushButton(self)  # Создание кнопки для добавления оценки
         add_mark_button.setGeometry(160, 50, 140, 30)
         add_mark_button.setText('Добавить оценку')
